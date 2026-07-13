@@ -1,0 +1,216 @@
+{
+  "id": "com.glacialengineering.homey.opensprinkler",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": ["local"],
+  "brandColor": "#0EA5E9",
+  "name": {
+    "en": "OpenSprinkler"
+  },
+  "description": {
+    "en": "Control OpenSprinkler and trigger Homey Flows from its MQTT events"
+  },
+  "category": ["appliances"],
+  "tags": {
+    "en": ["opensprinkler", "sprinkler", "irrigation", "watering", "mqtt", "garden"]
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "permissions": [],
+  "author": {
+    "name": "Glacial Engineering",
+    "email": "github@glacial.engineering"
+  },
+  "source": "https://github.com/glacial-engineering/homey-opensprinkler",
+  "homepage": "https://github.com/glacial-engineering/homey-opensprinkler",
+  "bugs": {
+    "url": "https://github.com/glacial-engineering/homey-opensprinkler/issues"
+  },
+  "support": "mailto:github@glacial.engineering",
+  "flow": {
+    "triggers": [
+      {
+        "id": "program_started",
+        "title": { "en": "A program started" },
+        "titleFormatted": { "en": "Program [[pid]] started" },
+        "hint": { "en": "Fires when OpenSprinkler starts running a program. Program ID 99 is a manual/run-once program, 254 is a run-once, 255 is a manual station." },
+        "args": [
+          { "name": "pid", "type": "text", "title": { "en": "Program ID" }, "placeholder": { "en": "Leave empty for any program" }, "required": false }
+        ],
+        "tokens": [
+          { "name": "pid", "type": "string", "title": { "en": "Program ID" } },
+          { "name": "water_level", "type": "number", "title": { "en": "Water Level (%)" } },
+          { "name": "raw_json", "type": "string", "title": { "en": "Raw JSON" } }
+        ]
+      },
+      {
+        "id": "station_changed",
+        "title": { "en": "A station turned on or off" },
+        "titleFormatted": { "en": "Station [[sid]] turned [[state]]" },
+        "hint": { "en": "Fires when a zone (station) opens or closes." },
+        "args": [
+          { "name": "sid", "type": "text", "title": { "en": "Station ID" }, "placeholder": { "en": "Leave empty for any station" }, "required": false },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "title": { "en": "State" },
+            "values": [
+              { "id": "any", "label": { "en": "On or off" } },
+              { "id": "on", "label": { "en": "On" } },
+              { "id": "off", "label": { "en": "Off" } }
+            ]
+          }
+        ],
+        "tokens": [
+          { "name": "sid", "type": "string", "title": { "en": "Station ID" } },
+          { "name": "on", "type": "boolean", "title": { "en": "Is On" } },
+          { "name": "duration", "type": "number", "title": { "en": "Duration (s)" } },
+          { "name": "raw_json", "type": "string", "title": { "en": "Raw JSON" } }
+        ]
+      },
+      {
+        "id": "sensor_changed",
+        "title": { "en": "A sensor changed" },
+        "titleFormatted": { "en": "Sensor [[sensor]] became [[state]]" },
+        "hint": { "en": "Fires when sensor 1 or sensor 2 (e.g. a rain sensor) activates or deactivates." },
+        "args": [
+          {
+            "name": "sensor",
+            "type": "dropdown",
+            "title": { "en": "Sensor" },
+            "values": [
+              { "id": "any", "label": { "en": "Any sensor" } },
+              { "id": "1", "label": { "en": "Sensor 1" } },
+              { "id": "2", "label": { "en": "Sensor 2" } }
+            ]
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "title": { "en": "State" },
+            "values": [
+              { "id": "any", "label": { "en": "Active or inactive" } },
+              { "id": "active", "label": { "en": "Active" } },
+              { "id": "inactive", "label": { "en": "Inactive" } }
+            ]
+          }
+        ],
+        "tokens": [
+          { "name": "sensor", "type": "string", "title": { "en": "Sensor" } },
+          { "name": "active", "type": "boolean", "title": { "en": "Is Active" } }
+        ]
+      },
+      {
+        "id": "weather_updated",
+        "title": { "en": "Weather adjustment changed" },
+        "titleFormatted": { "en": "Water level changed to [[water_level]]%" },
+        "hint": { "en": "Fires when OpenSprinkler updates its weather-based watering level." },
+        "tokens": [
+          { "name": "water_level", "type": "number", "title": { "en": "Water Level (%)" } }
+        ]
+      },
+      {
+        "id": "flow_alert",
+        "title": { "en": "Flow alert" },
+        "titleFormatted": { "en": "Flow alert reported" },
+        "hint": { "en": "Fires when OpenSprinkler reports an abnormal flow alert." },
+        "tokens": [
+          { "name": "raw_json", "type": "string", "title": { "en": "Raw JSON" } }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "controller_enabled",
+        "title": { "en": "Controller operation is !{{enabled|disabled}}" },
+        "hint": { "en": "Checks whether OpenSprinkler operation is currently enabled." }
+      },
+      {
+        "id": "any_station_running",
+        "title": { "en": "!{{Any|No}} station is running" },
+        "hint": { "en": "Checks whether any zone is currently watering." }
+      }
+    ],
+    "actions": [
+      {
+        "id": "stop_all",
+        "title": { "en": "Stop all watering" },
+        "titleFormatted": { "en": "Stop all watering" },
+        "hint": { "en": "Resets all running and queued stations." }
+      },
+      {
+        "id": "start_program",
+        "title": { "en": "Start a program" },
+        "titleFormatted": { "en": "Start program [[pid]] (use weather: [[uwt]])" },
+        "args": [
+          { "name": "pid", "type": "number", "title": { "en": "Program ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
+          {
+            "name": "uwt",
+            "type": "dropdown",
+            "title": { "en": "Use weather adjustment" },
+            "values": [
+              { "id": "1", "label": { "en": "Yes" } },
+              { "id": "0", "label": { "en": "No (run at 100%)" } }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_program_enabled",
+        "title": { "en": "Enable or disable a program" },
+        "titleFormatted": { "en": "Set program [[pid]] to [[en]]" },
+        "args": [
+          { "name": "pid", "type": "number", "title": { "en": "Program ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
+          {
+            "name": "en",
+            "type": "dropdown",
+            "title": { "en": "State" },
+            "values": [
+              { "id": "1", "label": { "en": "Enabled" } },
+              { "id": "0", "label": { "en": "Disabled" } }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "set_controller_enabled",
+        "title": { "en": "Enable or disable controller operation" },
+        "titleFormatted": { "en": "Set controller operation to [[en]]" },
+        "args": [
+          {
+            "name": "en",
+            "type": "dropdown",
+            "title": { "en": "State" },
+            "values": [
+              { "id": "1", "label": { "en": "Enabled" } },
+              { "id": "0", "label": { "en": "Disabled" } }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "run_station",
+        "title": { "en": "Run a single station" },
+        "titleFormatted": { "en": "Run station [[sid]] for [[seconds]] seconds" },
+        "hint": { "en": "Manually runs one zone for a set number of seconds." },
+        "args": [
+          { "name": "sid", "type": "number", "title": { "en": "Station ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
+          { "name": "seconds", "type": "number", "title": { "en": "Duration (seconds)" }, "min": 0, "max": 64800, "step": 1, "placeholder": { "en": "300" } }
+        ]
+      },
+      {
+        "id": "set_rain_delay",
+        "title": { "en": "Set rain delay" },
+        "titleFormatted": { "en": "Set rain delay to [[hours]] hours" },
+        "hint": { "en": "Sets a rain delay in hours (0 clears it)." },
+        "args": [
+          { "name": "hours", "type": "number", "title": { "en": "Hours" }, "min": 0, "max": 32767, "step": 1, "placeholder": { "en": "24" } }
+        ]
+      }
+    ]
+  }
+}

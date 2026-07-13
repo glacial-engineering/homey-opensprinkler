@@ -1,0 +1,22 @@
+{
+  "settings": {
+    "title": "OpenSprinkler",
+    "intro": "Connect to the same MQTT broker your OpenSprinkler controller publishes to. The app sends commands over MQTT and listens for status events.",
+    "mqtt": "MQTT",
+    "mqttProtocol": "Protocol",
+    "mqttHost": "Host",
+    "mqttPort": "Port",
+    "mqttUsername": "Broker username (optional)",
+    "mqttPassword": "Broker password (optional)",
+    "mqttClientId": "Client ID",
+    "topicPrefix": "Publish topic",
+    "topicPrefixHint": "OpenSprinkler's publish topic (Edit Options → MQTT, \"pubt\"). Status and availability messages arrive under this topic, e.g. opensprinkler or OS-112233AABBCC.",
+    "commandTopic": "Command topic",
+    "commandTopicHint": "OpenSprinkler's subscribe topic (\"subt\") — where the controller listens for commands. Leave blank to use \"<publish topic>/in\". On firmware 2.2.1+ this must match the controller exactly (e.g. opensprinkler/in), or commands are ignored.",
+    "controller": "Controller",
+    "devicePassword": "Device password",
+    "devicePasswordHint": "Your OpenSprinkler web password (default: opendoor). It is MD5-hashed before being sent, never transmitted in plain text.",
+    "save": "Save",
+    "saved": "Settings saved"
+  }
+}

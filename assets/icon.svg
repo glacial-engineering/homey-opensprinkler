@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- water droplet -->
+  <path d="M250 70 C250 70 150 200 150 290 a100 100 0 0 0 200 0 C350 200 250 70 250 70 Z"
+        fill="none" stroke="currentColor" stroke-width="26" stroke-linejoin="round"/>
+  <!-- highlight / shine inside droplet -->
+  <path d="M215 300 a35 35 0 0 0 25 45"
+        fill="none" stroke="currentColor" stroke-width="18" stroke-linecap="round"/>
+  <!-- spray arcs from the sprinkler -->
+  <path d="M110 400 q40 -40 80 0" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+  <path d="M310 400 q40 -40 80 0" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+</svg>
