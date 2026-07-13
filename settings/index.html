@@ -191,27 +191,7 @@
           <input id="mqttClientId" type="text" placeholder="homey-opensprinkler">
         </div>
 
-        <div class="field">
-          <label for="topicPrefix" data-i18n="settings.topicPrefix"></label>
-          <input id="topicPrefix" type="text" placeholder="opensprinkler">
-          <p class="hint" data-i18n="settings.topicPrefixHint"></p>
-        </div>
-
-        <div class="field">
-          <label for="commandTopic" data-i18n="settings.commandTopic"></label>
-          <input id="commandTopic" type="text" placeholder="opensprinkler/in">
-          <p class="hint" data-i18n="settings.commandTopicHint"></p>
-        </div>
-      </div>
-
-      <div class="card">
-        <p class="card-title" data-i18n="settings.controller"></p>
-
-        <div class="field">
-          <label for="devicePassword" data-i18n="settings.devicePassword"></label>
-          <input id="devicePassword" type="password" placeholder="opendoor">
-          <p class="hint" data-i18n="settings.devicePasswordHint"></p>
-        </div>
+        <p class="hint" data-i18n="settings.brokerHint"></p>
       </div>
 
       <div class="toolbar">
@@ -227,9 +207,6 @@
         'mqttUsername',
         'mqttPassword',
         'mqttClientId',
-        'topicPrefix',
-        'commandTopic',
-        'devicePassword',
       ];
 
       function onHomeyReady(Homey) {

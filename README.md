@@ -1,6 +1,8 @@
 # OpenSprinkler for Homey
 
-Athom Homey app that controls [OpenSprinkler](https://opensprinkler.com/) irrigation controllers and triggers Homey Flows from their MQTT messages. It talks to OpenSprinkler entirely over MQTT — no direct HTTP connection to the controller is needed, only a shared MQTT broker.
+Athom Homey app that controls [OpenSprinkler](https://opensprinkler.com/) irrigation controllers and triggers Homey Flows from their MQTT messages. Each controller is added as a Homey **device**; Flow cards, capabilities, and status all attach to that device. It talks to OpenSprinkler entirely over MQTT — no direct HTTP connection to the controller is needed, only a shared MQTT broker.
+
+The controller device exposes an on/off tile: **on** starts the first program (program 0), **off** stops all watering. A read-only "Station running" indicator reflects whether any zone is currently active.
 
 ## How it works
 
@@ -11,8 +13,10 @@ OpenSprinkler (firmware 2.2.1+) publishes status events to an MQTT broker and ca
 
 ## Features
 
-- MQTT connection configured from app settings (protocol, host, port, client ID, optional broker auth)
-- Separate publish and command topics to match OpenSprinkler firmware 2.2.1+
+- One controller = one Homey device; multiple controllers supported on the same broker
+- On/off tile: on starts program 0, off stops all watering; plus a "Station running" indicator
+- MQTT broker configured once in app settings (protocol, host, port, client ID, optional broker auth)
+- Per-device publish and command topics to match OpenSprinkler firmware 2.2.1+
 - Device password is MD5-hashed in the app and never sent or logged in plain text
 - **Action** cards: stop all watering, start a program, enable/disable a program, enable/disable controller operation, run a single station, set rain delay
 - **Condition** cards: controller operation enabled/disabled, any/no station running
@@ -23,11 +27,13 @@ OpenSprinkler (firmware 2.2.1+) publishes status events to an MQTT broker and ca
 1. On OpenSprinkler: **Edit Options → MQTT**, enable MQTT and point it at your broker. Note the **publish topic** (`pubt`, often `opensprinkler` or MAC-based like `OS-112233AABBCC`) and the **command topic** (`subt`, commonly `<pubt>/in`).
 2. On OpenSprinkler: **Edit Options → Notifications**, enable the events you want published (station on/off, program, sensors, weather, flow alert). If nothing is enabled the controller only publishes availability, and no triggers will fire.
 3. Install this app on your Homey Pro.
-4. Open the app's **Settings** and fill in:
-   - MQTT broker host/port, and optional broker username/password
+4. Open the app's **Settings** and configure the shared **MQTT broker** (host/port and optional username/password).
+5. Add a device: **Devices → + → OpenSprinkler → OpenSprinkler Controller**, then enter that controller's:
    - **Publish topic** — OpenSprinkler's `pubt`
    - **Command topic** — OpenSprinkler's `subt` (leave blank to use `<publish topic>/in`)
    - **Device password** — your OpenSprinkler web password (default `opendoor`)
+
+   These can be changed later under the device's **Advanced Settings**.
 
 ## Flow cards
 

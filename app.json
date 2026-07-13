@@ -31,14 +31,73 @@
     "url": "https://github.com/glacial-engineering/homey-opensprinkler/issues"
   },
   "support": "mailto:github@glacial.engineering",
+  "drivers": [
+    {
+      "id": "controller",
+      "name": { "en": "OpenSprinkler Controller" },
+      "class": "other",
+      "capabilities": ["onoff", "alarm_water"],
+      "capabilitiesOptions": {
+        "onoff": {
+          "title": { "en": "Watering" },
+          "insightsTitleTrue": { "en": "Started program" },
+          "insightsTitleFalse": { "en": "Stopped all" },
+          "uiQuickAction": true
+        },
+        "alarm_water": {
+          "title": { "en": "Station running" }
+        }
+      },
+      "images": {
+        "small": "/drivers/controller/assets/images/small.png",
+        "large": "/drivers/controller/assets/images/large.png",
+        "xlarge": "/drivers/controller/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "add_controller"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": { "en": "OpenSprinkler" },
+          "children": [
+            {
+              "id": "publishTopic",
+              "type": "text",
+              "label": { "en": "Publish topic" },
+              "value": "",
+              "hint": { "en": "OpenSprinkler's publish topic (\"pubt\"), where it publishes status, e.g. opensprinkler." }
+            },
+            {
+              "id": "commandTopic",
+              "type": "text",
+              "label": { "en": "Command topic" },
+              "value": "",
+              "hint": { "en": "OpenSprinkler's subscribe topic (\"subt\"). Leave blank to use <publish topic>/in." }
+            },
+            {
+              "id": "devicePassword",
+              "type": "password",
+              "label": { "en": "Device password" },
+              "value": "",
+              "hint": { "en": "Your OpenSprinkler web password. It is MD5-hashed before use." }
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "flow": {
     "triggers": [
       {
         "id": "program_started",
         "title": { "en": "A program started" },
         "titleFormatted": { "en": "Program [[pid]] started" },
-        "hint": { "en": "Fires when OpenSprinkler starts running a program. Program ID 99 is a manual/run-once program, 254 is a run-once, 255 is a manual station." },
+        "hint": { "en": "Fires when the controller starts running a program. Leave Program ID empty for any program." },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "pid", "type": "text", "title": { "en": "Program ID" }, "placeholder": { "en": "Leave empty for any program" }, "required": false }
         ],
         "tokens": [
@@ -53,6 +112,7 @@
         "titleFormatted": { "en": "Station [[sid]] turned [[state]]" },
         "hint": { "en": "Fires when a zone (station) opens or closes." },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "sid", "type": "text", "title": { "en": "Station ID" }, "placeholder": { "en": "Leave empty for any station" }, "required": false },
           {
             "name": "state",
@@ -78,6 +138,7 @@
         "titleFormatted": { "en": "Sensor [[sensor]] became [[state]]" },
         "hint": { "en": "Fires when sensor 1 or sensor 2 (e.g. a rain sensor) activates or deactivates." },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           {
             "name": "sensor",
             "type": "dropdown",
@@ -108,7 +169,10 @@
         "id": "weather_updated",
         "title": { "en": "Weather adjustment changed" },
         "titleFormatted": { "en": "Water level changed to [[water_level]]%" },
-        "hint": { "en": "Fires when OpenSprinkler updates its weather-based watering level." },
+        "hint": { "en": "Fires when the controller updates its weather-based watering level." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ],
         "tokens": [
           { "name": "water_level", "type": "number", "title": { "en": "Water Level (%)" } }
         ]
@@ -117,7 +181,10 @@
         "id": "flow_alert",
         "title": { "en": "Flow alert" },
         "titleFormatted": { "en": "Flow alert reported" },
-        "hint": { "en": "Fires when OpenSprinkler reports an abnormal flow alert." },
+        "hint": { "en": "Fires when the controller reports an abnormal flow alert." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ],
         "tokens": [
           { "name": "raw_json", "type": "string", "title": { "en": "Raw JSON" } }
         ]
@@ -127,12 +194,18 @@
       {
         "id": "controller_enabled",
         "title": { "en": "Controller operation is !{{enabled|disabled}}" },
-        "hint": { "en": "Checks whether OpenSprinkler operation is currently enabled." }
+        "hint": { "en": "Checks whether controller operation is currently enabled." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ]
       },
       {
         "id": "any_station_running",
         "title": { "en": "!{{Any|No}} station is running" },
-        "hint": { "en": "Checks whether any zone is currently watering." }
+        "hint": { "en": "Checks whether any zone is currently watering." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ]
       }
     ],
     "actions": [
@@ -140,13 +213,17 @@
         "id": "stop_all",
         "title": { "en": "Stop all watering" },
         "titleFormatted": { "en": "Stop all watering" },
-        "hint": { "en": "Resets all running and queued stations." }
+        "hint": { "en": "Resets all running and queued stations." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ]
       },
       {
         "id": "start_program",
         "title": { "en": "Start a program" },
         "titleFormatted": { "en": "Start program [[pid]] (use weather: [[uwt]])" },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "pid", "type": "number", "title": { "en": "Program ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
           {
             "name": "uwt",
@@ -164,6 +241,7 @@
         "title": { "en": "Enable or disable a program" },
         "titleFormatted": { "en": "Set program [[pid]] to [[en]]" },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "pid", "type": "number", "title": { "en": "Program ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
           {
             "name": "en",
@@ -181,6 +259,7 @@
         "title": { "en": "Enable or disable controller operation" },
         "titleFormatted": { "en": "Set controller operation to [[en]]" },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           {
             "name": "en",
             "type": "dropdown",
@@ -198,6 +277,7 @@
         "titleFormatted": { "en": "Run station [[sid]] for [[seconds]] seconds" },
         "hint": { "en": "Manually runs one zone for a set number of seconds." },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "sid", "type": "number", "title": { "en": "Station ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },
           { "name": "seconds", "type": "number", "title": { "en": "Duration (seconds)" }, "min": 0, "max": 64800, "step": 1, "placeholder": { "en": "300" } }
         ]
@@ -208,6 +288,7 @@
         "titleFormatted": { "en": "Set rain delay to [[hours]] hours" },
         "hint": { "en": "Sets a rain delay in hours (0 clears it)." },
         "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "hours", "type": "number", "title": { "en": "Hours" }, "min": 0, "max": 32767, "step": 1, "placeholder": { "en": "24" } }
         ]
       }
