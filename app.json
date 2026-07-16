@@ -83,6 +83,13 @@
               "label": { "en": "Device password" },
               "value": "",
               "hint": { "en": "Your OpenSprinkler web password. It is MD5-hashed before use." }
+            },
+            {
+              "id": "baseUrl",
+              "type": "text",
+              "label": { "en": "Controller URL (optional)" },
+              "value": "",
+              "hint": { "en": "OpenSprinkler's HTTP address, e.g. http://192.168.1.50. Only required for \"Enable or disable a program\", which OpenSprinkler does not support over MQTT." }
             }
           ]
         }
@@ -240,6 +247,7 @@
         "id": "set_program_enabled",
         "title": { "en": "Enable or disable a program" },
         "titleFormatted": { "en": "Set program [[pid]] to [[en]]" },
+        "hint": { "en": "OpenSprinkler does not support this over MQTT, so it requires the \"Controller URL\" device setting to be filled in." },
         "args": [
           { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "pid", "type": "number", "title": { "en": "Program ID" }, "min": 0, "step": 1, "placeholder": { "en": "0" } },

@@ -2,6 +2,8 @@
 
 const Homey = require('homey');
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 
 class ControllerDevice extends Homey.Device {
   async onInit() {
@@ -62,6 +64,10 @@ class ControllerDevice extends Homey.Device {
     return crypto.createHash('md5').update(password).digest('hex');
   }
 
+  getBaseUrl() {
+    return (this.getSetting('baseUrl') || '').replace(/\/+$/, '');
+  }
+
   // --- Commands ------------------------------------------------------------
 
   // OpenSprinkler accepts commands on its command topic as HTTP-API-style
@@ -80,6 +86,34 @@ class ControllerDevice extends Homey.Device {
     return this.homey.app.publish(topic, message);
   }
 
+  // Same query-string format as sendCommand, but sent as an HTTP GET directly
+  // to the controller, for commands OpenSprinkler doesn't support over MQTT.
+  async sendHttpCommand(endpoint, params) {
+    const baseUrl = this.getBaseUrl();
+    if (!baseUrl) {
+      throw new Error('Controller URL is not configured in device settings.');
+    }
+
+    const query = { pw: this.getPasswordHash(), ...params };
+    const queryString = Object.entries(query)
+      .filter(([, value]) => value !== undefined && value !== null && value !== '')
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&');
+
+    const url = `${baseUrl}/${endpoint}?${queryString}`;
+    this.log(`HTTP Command → ${url.replace(/pw=[^&]*/, 'pw=***')}`);
+
+    const client = url.startsWith('https:') ? https : http;
+    return new Promise((resolve, reject) => {
+      const req = client.get(url, (res) => {
+        res.resume();
+        res.on('end', () => resolve());
+      });
+      req.on('error', reject);
+      req.setTimeout(10000, () => req.destroy(new Error('Request timed out')));
+    });
+  }
+
   stopAll() {
     return this.sendCommand('cv', { rsn: 1 });
   }
@@ -88,8 +122,10 @@ class ControllerDevice extends Homey.Device {
     return this.sendCommand('mp', { pid, uwt });
   }
 
+  // OpenSprinkler's firmware does not dispatch "cp" over MQTT (only cv/cm/cr/mp
+  // are recognized there), so this one command has to go over the HTTP API.
   setProgramEnabled(pid, en) {
-    return this.sendCommand('cp', { pid, en });
+    return this.sendHttpCommand('cp', { pid, en });
   }
 
   setControllerEnabled(en) {
