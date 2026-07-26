@@ -215,6 +215,13 @@ class ControllerDevice extends Homey.Device {
       this.setCapabilityValue('alarm_water', this.runningStations.size > 0).catch(this.error);
     }
 
+    // Keep the onoff tile in sync with actual station activity, since a
+    // program finishing (or being stopped/skipped externally) never goes
+    // through the onoff capability listener.
+    if (this.hasCapability('onoff')) {
+      this.setCapabilityValue('onoff', this.runningStations.size > 0).catch(this.error);
+    }
+
     this.driver.stationChangedTrigger.trigger(this, {
       sid,
       on,
