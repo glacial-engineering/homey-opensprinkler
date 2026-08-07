@@ -18,7 +18,7 @@ OpenSprinkler (firmware 2.2.1+) publishes status events to an MQTT broker and ca
 - MQTT broker configured once in app settings (protocol, host, port, client ID, optional broker auth)
 - Per-device publish and command topics to match OpenSprinkler firmware 2.2.1+
 - Device password is MD5-hashed in the app and never sent or logged in plain text
-- **Action** cards: stop all watering, start a program, enable/disable a program, enable/disable controller operation, run a single station, set rain delay
+- **Action** cards: stop all watering, start a program, enable/disable a program, enable/disable controller operation, run a single station, set rain delay, pause/unpause stations
 - **Condition** cards: controller operation enabled/disabled, any/no station running
 - **Trigger** cards: program started, station on/off, sensor changed, weather (watering level) changed, flow alert
 
@@ -32,7 +32,7 @@ OpenSprinkler (firmware 2.2.1+) publishes status events to an MQTT broker and ca
    - **Publish topic** — OpenSprinkler's `pubt`
    - **Command topic** — OpenSprinkler's `subt` (leave blank to use `<publish topic>/in`)
    - **Device password** — your OpenSprinkler web password (default `opendoor`)
-   - **Controller URL** (optional) — OpenSprinkler's HTTP address, e.g. `http://192.168.1.50`. Only needed for the "Enable or disable a program" action (see below).
+   - **Controller URL** (optional) — OpenSprinkler's HTTP address, e.g. `http://192.168.1.50`. Needed for HTTP-only actions: enable/disable a program, pause stations, unpause stations (see below).
 
    These can be changed later under the device's **Advanced Settings**.
 
@@ -48,6 +48,8 @@ OpenSprinkler (firmware 2.2.1+) publishes status events to an MQTT broker and ca
 | Enable or disable controller operation | `cv?en=…` |
 | Run a single station for N seconds | `cm?sid=…&t=…&en=1` |
 | Set rain delay (hours) | `cv?rd=…` |
+| Pause stations for N seconds | `pq?repl=…` (sent over HTTP — see below) |
+| Unpause stations | `pq?repl=0` (sent over HTTP — see below) |
 
 ### Conditions
 
@@ -67,7 +69,7 @@ Condition state (controller enabled, running stations) is tracked from published
 ## Troubleshooting
 
 - **Commands do nothing.** Check the **command topic** matches OpenSprinkler's `subt` exactly, and that the **device password** is correct — an incorrect password makes the controller silently reject every command.
-- **"Enable or disable a program" does nothing.** OpenSprinkler's firmware only dispatches `cv`, `cm`, `cr`, and `mp` over MQTT — `cp` (program enable/disable) is not handled there at all, so it's sent as a direct HTTP request instead. Set the device's **Controller URL** setting to enable it.
+- **HTTP-only actions do nothing** (enable/disable a program, pause/unpause stations). OpenSprinkler's firmware only dispatches `cv`, `cm`, `cr`, and `mp` over MQTT — `cp` and `pq` are not handled there, so they are sent as direct HTTP requests instead. Set the device's **Controller URL** setting to enable them.
 - **No triggers fire.** Enable the relevant events under **Edit Options → Notifications** on the controller, and confirm the **publish topic** matches `pubt`.
 
 ## Notes

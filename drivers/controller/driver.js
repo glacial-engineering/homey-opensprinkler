@@ -27,6 +27,12 @@ class ControllerDriver extends Homey.Driver {
     this.homey.flow.getActionCard('set_rain_delay')
       .registerRunListener(async (args) => args.device.setRainDelay(args.hours));
 
+    this.homey.flow.getActionCard('pause_stations')
+      .registerRunListener(async (args) => args.device.pauseStations(args.seconds));
+
+    this.homey.flow.getActionCard('unpause_stations')
+      .registerRunListener(async (args) => args.device.unpauseStations());
+
     // Conditions.
     this.homey.flow.getConditionCard('controller_enabled')
       .registerRunListener(async (args) => args.device.isControllerEnabled());

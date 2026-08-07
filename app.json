@@ -299,6 +299,25 @@
           { "name": "device", "type": "device", "filter": "driver_id=controller" },
           { "name": "hours", "type": "number", "title": { "en": "Hours" }, "min": 0, "max": 32767, "step": 1, "placeholder": { "en": "24" } }
         ]
+      },
+      {
+        "id": "pause_stations",
+        "title": { "en": "Pause stations" },
+        "titleFormatted": { "en": "Pause stations for [[seconds]] seconds" },
+        "hint": { "en": "Temporarily pauses running and queued stations. Requires the \"Controller URL\" device setting. Use 0 seconds to unpause." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" },
+          { "name": "seconds", "type": "number", "title": { "en": "Duration (seconds)" }, "min": 0, "max": 86400, "step": 1, "placeholder": { "en": "7200" } }
+        ]
+      },
+      {
+        "id": "unpause_stations",
+        "title": { "en": "Unpause stations" },
+        "titleFormatted": { "en": "Unpause stations" },
+        "hint": { "en": "Cancels any active pause and resumes stations. Requires the \"Controller URL\" device setting." },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=controller" }
+        ]
       }
     ]
   }

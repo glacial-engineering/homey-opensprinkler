@@ -140,6 +140,17 @@ class ControllerDevice extends Homey.Device {
     return this.sendCommand('cv', { rd: hours });
   }
 
+  // OpenSprinkler's /pq (pause queue) is not dispatched over MQTT, so this
+  // goes over the HTTP API. repl sets/replaces the pause duration in seconds;
+  // repl=0 cancels any active pause and resumes stations.
+  pauseStations(seconds) {
+    return this.sendHttpCommand('pq', { repl: seconds });
+  }
+
+  unpauseStations() {
+    return this.pauseStations(0);
+  }
+
   // --- Condition helpers ---------------------------------------------------
 
   isControllerEnabled() {
